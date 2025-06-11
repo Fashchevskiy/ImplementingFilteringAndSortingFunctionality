@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Фільтрація та сортування</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        #items-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .item {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div class="filters">
+        <input type="text" id="search" placeholder="Пошук...">
+        <select id="sortBy">
+            <option value="name">За назвою</option>
+            <option value="price">За ціною</option>
+        </select>
+        <button id="resetFilters">Скинути фільтри</button>
+    </div>
+
+    <div id="items-container"></div>
+
+    <script>
+        const data = [
+            { name: 'Телефон', price: 500 },
+            { name: 'Ноутбук', price: 1200 },
+            { name: 'Навушники', price: 150 },
+            { name: 'Монітор', price: 300 },
+            { name: 'Клавіатура', price: 100 }
+        ];
+
+        class FilterSystem {
+            constructor(data) {
+                this.originalData = data;
+                this.filteredData = [...data];
+                this.init();
+            }
+
+            init() {
+                this.searchInput = document.getElementById('search');
+                this.sortSelect = document.getElementById('sortBy');
+                this.container = document.getElementById('items-container');
+                this.resetButton = document.getElementById('resetFilters');
+
+                this.searchInput.addEventListener('input', () => this.applyFilters());
+                this.sortSelect.addEventListener('change', () => this.applyFilters());
+                this.resetButton.addEventListener('click', () => this.resetFilters());
+
+                this.render();
+            }
+
+            applyFilters() {
+                const query = this.searchInput.value.toLowerCase();
+                const sortBy = this.sortSelect.value;
+
+                this.filteredData = this.originalData
+                    .filter(item => item.name.toLowerCase().includes(query))
+                    .sort((a, b) => {
+                        if (sortBy === 'name') {
+                            return a.name.localeCompare(b.name);
+                        } else if (sortBy === 'price') {
+                            return a.price - b.price;
+                        }
+                        return 0;
+                    });
+
+                this.render();
+            }
+
+            resetFilters() {
+                this.searchInput.value = '';
+                this.sortSelect.value = 'name';
+                this.filteredData = [...this.originalData];
+                this.render();
+            }
+
+            render() {
+                this.container.innerHTML = '';
+                this.filteredData.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'item';
+                    div.innerHTML = `<h4>${item.name}</h4><p>Ціна: ${item.price} грн</p>`;
+                    this.container.appendChild(div);
+                });
+            }
+        }
+
+        new FilterSystem(data);
+    </script>
+</body>
+</html>
